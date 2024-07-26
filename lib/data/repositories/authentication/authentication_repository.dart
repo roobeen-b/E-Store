@@ -1,5 +1,7 @@
 import 'package:estore/features/authentication/screens/login/login.dart';
 import 'package:estore/features/authentication/screens/onboarding/onboarding.dart';
+import 'package:estore/features/authentication/screens/signup/verify_email.dart';
+import 'package:estore/navigation_menu.dart';
 import 'package:estore/utils/exceptions/firebase_auth_exceptions.dart';
 import 'package:estore/utils/exceptions/firebase_exceptions.dart';
 import 'package:estore/utils/exceptions/format_exceptions.dart';
@@ -22,10 +24,21 @@ class AuthenticationRepository extends GetxController {
   }
 
   screenRedirect() async {
-    deviceStorage.writeIfNull("IsFirstTime", true);
-    deviceStorage.read("IsFirstTime") != true
-        ? Get.offAll(() => const LoginScreen())
-        : Get.offAll(() => const OnBoardingScreen());
+    final user = _auth.currentUser;
+    if (user != null) {
+      if (user.emailVerified) {
+        Get.offAll(() => const NavigationMenu());
+      } else {
+        Get.offAll(() => VerifyEmail(
+              email: _auth.currentUser?.email,
+            ));
+      }
+    } else {
+      deviceStorage.writeIfNull("IsFirstTime", true);
+      deviceStorage.read("IsFirstTime") != true
+          ? Get.offAll(() => const LoginScreen())
+          : Get.offAll(() => const OnBoardingScreen());
+    }
   }
 
   //User Registration
@@ -44,6 +57,41 @@ class AuthenticationRepository extends GetxController {
       throw TPlatformException(e.code).message;
     } catch (e) {
       throw 'Something went wrong.Please try again';
-    } finally {}
+    }
+  }
+
+  // Email verification
+  Future<void> sendEmailVerification() async {
+    try {
+      return await _auth.currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      throw TFirebaseAuthException(e.code).message;
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on TFormatException catch (_) {
+      throw const TFormatException();
+    } on TPlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong.Please try again';
+    }
+  }
+
+  // Logout user
+  Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Get.offAll(() => const LoginScreen());
+    } on FirebaseAuthException catch (e) {
+      throw TFirebaseAuthException(e.code).message;
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on TFormatException catch (_) {
+      throw const TFormatException();
+    } on TPlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong.Please try again';
+    }
   }
 }
