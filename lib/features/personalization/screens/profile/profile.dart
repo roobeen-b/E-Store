@@ -1,5 +1,6 @@
 import 'package:estore/common/widgets/appbar/appbar.dart';
 import 'package:estore/common/widgets/images/t_circular_image.dart';
+import 'package:estore/common/widgets/loaders/shimmer.dart';
 import 'package:estore/common/widgets/texts/section_heading.dart';
 import 'package:estore/features/personalization/controllers/user_controller.dart';
 import 'package:estore/features/personalization/screens/profile/change_name.dart';
@@ -30,13 +31,30 @@ class ProfileScreen extends StatelessWidget {
                 width: double.infinity,
                 child: Column(
                   children: [
-                    const TCircularImage(
-                      width: 80,
-                      height: 80,
-                      imageUrl: TImages.user,
+                    Obx(
+                      () {
+                        final networkImage =
+                            controller.user.value.profilePicture;
+                        final image = networkImage.isNotEmpty
+                            ? networkImage
+                            : TImages.user;
+
+                        return controller.isImageUploading.value
+                            ? const TShimmerEffect(
+                                width: 80,
+                                height: 80,
+                                radius: 80,
+                              )
+                            : TCircularImage(
+                                width: 80,
+                                height: 80,
+                                imageUrl: image,
+                                isNetworkImage: networkImage.isNotEmpty,
+                              );
+                      },
                     ),
                     TextButton(
-                        onPressed: () {},
+                        onPressed: () => controller.uploadUserProfilePicture(),
                         child: const Text("Change Profile Picture"))
                   ],
                 ),
