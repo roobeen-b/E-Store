@@ -1,3 +1,4 @@
+import 'package:estore/data/repositories/user/user_repository.dart';
 import 'package:estore/features/authentication/screens/login/login.dart';
 import 'package:estore/features/authentication/screens/onboarding/onboarding.dart';
 import 'package:estore/features/authentication/screens/signup/verify_email.dart';
@@ -17,6 +18,9 @@ class AuthenticationRepository extends GetxController {
 
   final deviceStorage = GetStorage();
   final _auth = FirebaseAuth.instance;
+
+  /// Get Authenticated user data
+  User? get authUser => _auth.currentUser;
 
   @override
   void onReady() {
@@ -114,6 +118,29 @@ class AuthenticationRepository extends GetxController {
     }
   }
 
+  /// Re authenticate user
+  Future<void> reAuthenticateWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      // Creating a credential
+      AuthCredential credential =
+          EmailAuthProvider.credential(email: email, password: password);
+
+      // ReAuthenticate
+      await _auth.currentUser!.reauthenticateWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      throw TFirebaseAuthException(e.code).message;
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on TFormatException catch (_) {
+      throw const TFormatException();
+    } on TPlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong.Please try again';
+    }
+  }
+
   // Google signin
   Future<UserCredential> signInWithGoogle() async {
     try {
@@ -148,6 +175,25 @@ class AuthenticationRepository extends GetxController {
     try {
       await GoogleSignIn().signOut();
       await FirebaseAuth.instance.signOut();
+      Get.offAll(() => const LoginScreen());
+    } on FirebaseAuthException catch (e) {
+      throw TFirebaseAuthException(e.code).message;
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on TFormatException catch (_) {
+      throw const TFormatException();
+    } on TPlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Something went wrong.Please try again';
+    }
+  }
+
+  /// Delete user - Remove user auth and firebase account
+  Future<void> deleteAccount() async {
+    try {
+      await UserRepository.instance.deleteUserRecord(_auth.currentUser!.uid);
+      await _auth.currentUser?.delete();
       Get.offAll(() => const LoginScreen());
     } on FirebaseAuthException catch (e) {
       throw TFirebaseAuthException(e.code).message;
