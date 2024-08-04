@@ -1,22 +1,27 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:estore/common/widgets/shimmers/shimmer.dart';
 import 'package:flutter/material.dart';
 import '../../../utils/constants/colors.dart';
 import '../../../utils/constants/sizes.dart';
 import '../../../utils/helpers/helper_functions.dart';
 
 class TVerticalImageText extends StatelessWidget {
-  const TVerticalImageText({
-    super.key,
-    required this.image,
-    required this.title,
-    this.onTap,
-    this.textColor = TColors.white,
-    this.backgroundColor,
-  });
+  const TVerticalImageText(
+      {super.key,
+      required this.image,
+      required this.title,
+      this.onTap,
+      this.textColor = TColors.white,
+      this.backgroundColor,
+      this.isNetworkImage = false,
+      this.fit = BoxFit.cover});
 
   final String image, title;
   final void Function()? onTap;
   final Color textColor;
   final Color? backgroundColor;
+  final bool isNetworkImage;
+  final BoxFit? fit;
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +42,24 @@ class TVerticalImageText extends StatelessWidget {
                       backgroundColor ?? (dark ? TColors.black : TColors.white),
                   borderRadius: BorderRadius.circular(100)),
               child: Center(
-                  child: Image(
-                image: AssetImage(image),
-                fit: BoxFit.cover,
-                color: dark ? TColors.light : TColors.dark,
-              )),
+                child: isNetworkImage
+                    ? CachedNetworkImage(
+                        imageUrl: image,
+                        fit: fit,
+                        progressIndicatorBuilder: (context, url, progress) =>
+                            const TShimmerEffect(
+                          width: 80,
+                          height: 80,
+                          radius: 80,
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      )
+                    : Image(
+                        image: AssetImage(image),
+                        fit: fit,
+                      ),
+              ),
             ),
             const SizedBox(
               height: TSizes.spaceBtwItems / 2,

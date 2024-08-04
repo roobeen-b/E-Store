@@ -1,6 +1,6 @@
 import 'package:estore/common/widgets/appbar/appbar.dart';
 import 'package:estore/common/widgets/images/t_circular_image.dart';
-import 'package:estore/common/widgets/loaders/shimmer.dart';
+import 'package:estore/common/widgets/shimmers/shimmer.dart';
 import 'package:estore/common/widgets/texts/section_heading.dart';
 import 'package:estore/features/personalization/controllers/user_controller.dart';
 import 'package:estore/features/personalization/screens/profile/change_name.dart';

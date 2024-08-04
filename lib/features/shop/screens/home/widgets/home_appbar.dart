@@ -1,4 +1,4 @@
-import 'package:estore/common/widgets/loaders/shimmer.dart';
+import 'package:estore/common/widgets/shimmers/shimmer.dart';
 import 'package:estore/features/personalization/controllers/user_controller.dart';
 import 'package:estore/features/shop/screens/cart/cart.dart';
 import 'package:flutter/material.dart';
