@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class BannerModel {
   final String imageUrl;
   final String targetScreen;
@@ -9,8 +11,19 @@ class BannerModel {
     required this.active,
   });
 
-  @override
-  String toString() {
-    return 'BannerModel(imageUrl: $imageUrl, targetScreen: $targetScreen, active: $active)';
+  Map<String, dynamic> toJson() {
+    return {
+      'ImageUrl': imageUrl,
+      'TargetScreen': targetScreen,
+      'Active': active
+    };
+  }
+
+  factory BannerModel.fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return BannerModel(
+        imageUrl: data['ImageUrl'] ?? "",
+        targetScreen: data['TargetScreen'] ?? "",
+        active: data['Active'] ?? false);
   }
 }
